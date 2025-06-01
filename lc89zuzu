@@ -1,0 +1,197 @@
+npx create-react-app weather-app
+cd weather-app
+This will create a new folder called weather-app with a basic React application structure.
+Step 2: Clean up the initial project
+Let's remove some files we don't need and modify others:
+bash
+rm src/App.test.js src/logo.svg src/reportWebVitals.js src/setupTests.js
+Now, let's update the content of some files:
+App.js
+Apply
+import React from 'react';
+import './App.css';
+
+function App() {
+  return (
+    <div className="App">
+      <h1>Weather App</h1>
+    </div>
+  );
+}
+
+export default App;
+index.js
+Apply
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+Step 3: Create the folder structure
+Now, let's create the folder structure we discussed earlier:
+bash
+mkdir src/components src/services src/utils
+Step 4: Install necessary dependencies
+We'll need axios for making API requests:
+bash
+npm install axios
+Step 5: Create the API service
+Let's create the weatherApi.js file:
+weatherApi.js
+Apply
+import axios from 'axios';
+
+const BASE_URL = 'https://api.open-meteo.com/v1/forecast';
+
+export const getWeather = async (latitude, longitude) => {
+  try {
+    const response = await axios.get(BASE_URL, {
+      params: {
+        latitude,
+        longitude,
+        current_weather: true,
+        hourly: 'temperature_2m,relativehumidity_2m,windspeed_10m',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching weather data:', error);
+    throw error;
+  }
+};
+Step 6: Create utility functions
+Let's create a file for formatting functions:
+formatters.js
+Apply
+export const formatTemperature = (temp) => `${Math.round(temp)}°C`;
+
+export const formatWindSpeed = (speed) => `${Math.round(speed)} km/h`;
+
+export const formatHumidity = (humidity) => `${Math.round(humidity)}%`;
+Step 7: Create React components
+Now, let's create our React components. First, the CityInput component:
+CityInput.js
+Apply
+import React, { useState } from 'react';
+
+function CityInput({ onCitySubmit }) {
+  const [city, setCity] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onCitySubmit(city);
+    setCity('');
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        value={city}
+        onChange={(e) => setCity(e.target.value)}
+        placeholder="Enter city name"
+        required
+      />
+      <button type="submit">Get Weather</button>
+    </form>
+  );
+}
+
+export default CityInput;
+Next, let's create the WeatherDisplay component:
+WeatherDisplay.js
+Apply
+import React from 'react';
+import { formatTemperature, formatWindSpeed, formatHumidity } from '../utils/formatters';
+
+function WeatherDisplay({ weatherData }) {
+  if (!weatherData) return null;
+
+  const { temperature, windspeed } = weatherData.current_weather;
+  const humidity = weatherData.hourly.relativehumidity_2m[0];
+
+  return (
+    <div>
+      <h2>Current Weather</h2>
+      <p>Temperature: {formatTemperature(temperature)}</p>
+      <p>Wind Speed: {formatWindSpeed(windspeed)}</p>
+      <p>Humidity: {formatHumidity(humidity)}</p>
+    </div>
+  );
+}
+
+export default WeatherDisplay;
+Step 8: Update App.js to use these components
+Now, let's update our App.js to use these new components:
+App.js
+Apply
+import React, { useState } from 'react';
+import './App.css';
+import CityInput from './components/CityInput';
+import WeatherDisplay from './components/WeatherDisplay';
+import { getWeather } from './services/weatherApi';
+
+function App() {
+  const [weatherData, setWeatherData] = useState(null);
+
+  const handleCitySubmit = async (city) => {
+    try {
+      // For simplicity, we're using a mock latitude and longitude.
+      // In a real app, you'd use a geocoding service to convert city name to coordinates.
+      const data = await getWeather(52.52, 13.41);  // Berlin coordinates
+      setWeatherData(data);
+    } catch (error) {
+      console.error('Error fetching weather data:', error);
+      // Handle error (e.g., show error message to user)
+    }
+  };
+
+  return (
+    <div className="App">
+      <h1>Weather App</h1>
+      <CityInput onCitySubmit={handleCitySubmit} />
+      <WeatherDisplay weatherData={weatherData} />
+    </div>
+  );
+}
+
+export default App;
+Step 9: Add some basic styling
+Let's add some basic styling to our app. Update the App.css file:
+App.css
+Apply
+.App {
+  text-align: center;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+input {
+  padding: 10px;
+  font-size: 16px;
+  width: 200px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+Step 10: Run the app
+Now you can run your app with:
+bash
+npm start
+This will start your app on http://localhost:3000.
