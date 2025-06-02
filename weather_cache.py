@@ -2,6 +2,7 @@ import time
 import json
 import os
 
+# Weather Cache class to store and retrieve weather data with expiry time
 class WeatherCache:
     def __init__(self, cache_file='weather_cache.json', expiry_time=3600):
         self.cache_file = cache_file

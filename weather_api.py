@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime, timedelta
 
-# This dictionary will serve as our simple cache
+# Weather API
 weather_cache = {}
 
 def get_cached_weather(city, fetch_func, cache_duration=timedelta(minutes=30)):

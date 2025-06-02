@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from weather_api import fetch_current_weather
 
+# Create a Flask app instance and enable CORS (Cross-Origin Resource Sharing)
 app = Flask(__name__)
 CORS(app)
 
