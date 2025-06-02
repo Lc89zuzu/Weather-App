@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .city-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+        .city-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 10px;
+            width: calc(50% - 20px);
+            min-width: 250px;
+        }
+        .city-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+        .weather-info {
+            display: grid;
+            grid-template-columns: auto auto;
+            gap: 10px;
+        }
+        .weather-item {
+            display: flex;
+            align-items: center;
+        }
+        .weather-icon {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+        }
+        @media (max-width: 768px) {
+            .city-card {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Multi-City Weather</h1>
+    <div class="city-container" id="weatherContainer"></div>
+
+    <script>
+        const cities = ["New York", "London", "Tokyo", "Sydney"];
+        const weatherContainer = document.getElementById('weatherContainer');
+
+        function fetchWeatherData() {
+            fetch(`http://127.0.0.1:5000/weather?cities=${cities.join(',')}`)
+                .then(response => response.json())
+                .then(data => {
+                    weatherContainer.innerHTML = '';  // Clear existing content
+                    for (const [city, weather] of Object.entries(data)) {
+                        const cityCard = document.createElement('div');
+                        cityCard.className = 'city-card';
+                        cityCard.innerHTML = `
+                            <div class="city-name">${city}</div>
+                            <div class="weather-info">
+                                <div class="weather-item">
+                                    <img src="temperature-icon.png" alt="Temperature" class="weather-icon">
+                                    <span>${weather.temperature}°C</span>
+                                </div>
+                                <div class="weather-item">
+                                    <img src="wind-icon.png" alt="Wind Speed" class="weather-icon">
+                                    <span>${weather.windspeed} km/h</span>
+                                </div>
+                                <div class="weather-item">
+                                    <img src="humidity-icon.png" alt="Humidity" class="weather-icon">
+                                    <span>${weather.humidity}%</span>
+                                </div>
+                                <div class="weather-item">
+                                    <img src="precipitation-icon.png" alt="Precipitation" class="weather-icon">
+                                    <span>${weather.precipitation} mm</span>
+                                </div>
+                            </div>
+                        `;
+                        weatherContainer.appendChild(cityCard);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching weather data:', error);
+                    weatherContainer.innerHTML = '<p>Error fetching weather data. Please try again later.</p>';
+                });
+        }
+
+        // Fetch weather data when the page loads
+        fetchWeatherData();
+
+        // Optionally, update the weather data every 5 minutes
+        setInterval(fetchWeatherData, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
